@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Consumption Graphs</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #eef2ff, #d1e3ff);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    width: 80%;
+    max-width: 900px;
+    margin: auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.container:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+h3 {
+    color: #34495e;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+canvas {
+    width: 100% !important;
+    max-height: 400px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease-in-out;
+}
+
+canvas:hover {
+    transform: scale(1.03);
+}
+
+.back-button {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 25px;
+    background: #3498db;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.back-button:hover {
+    background: #2980b9;
+    transform: translateY(-3px);
+    box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Energy Consumption Graphs</h1>
+
+        <h3>📅 Weekly Energy Consumption</h3>
+        <canvas id="weeklyChart"></canvas>
+
+        <h3>📆 Monthly Energy Consumption</h3>
+        <canvas id="monthlyChart"></canvas>
+
+        <a href="/" class="back-button">🔙 Go Back</a>
+    </div>
+
+    <script>
+        async function fetchData(url) {
+            const response = await fetch(url);
+            return response.json();
+        }
+
+        async function createGraph(canvasId, url, label, backgroundColor, borderColor) {
+            const data = await fetchData(url);
+
+            const labels = data.map(item => new Date(item.date).toLocaleDateString());
+            const values = data.map(item => item["Total Energy Consumption (kWh)"]);
+
+            new Chart(document.getElementById(canvasId), {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: values,
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            ticks: { autoSkip: true, maxTicksLimit: 10 }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize both graphs
+        createGraph("weeklyChart", "/weekly_consumption", "Weekly Consumption (kWh)", "rgba(54, 162, 235, 0.5)", "rgba(54, 162, 235, 1)");
+        createGraph("monthlyChart", "/monthly_consumption", "Monthly Consumption (kWh)", "rgba(255, 99, 132, 0.5)", "rgba(255, 99, 132, 1)");
+    </script>
+</body>
+</html>
